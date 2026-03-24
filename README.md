@@ -25,9 +25,11 @@ npx @pkagentic/create-project@latest my-project-name
 ```
 Project name should not have space.
 
-### 2. Add to Claude Desktop (or other MCP Client)
+### 2. Manually Add to Claude Desktop (or other MCP Client)
 
-To use this with Claude Desktop, edit your `claude_desktop_config.json`:
+This is Optional since step 1 already configures MCP automatically.
+
+To add this to Claude Desktop, edit your `claude_desktop_config.json`:
 - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
