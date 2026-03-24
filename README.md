@@ -18,12 +18,12 @@ This MCP server provides tools for AI agents (like Claude Desktop) to interact w
 
 ### 1. Install Dependencies
 
-Navigate to the `pk-mcp` directory and install dependencies:
+Create the Project Folder via npx command :
 
 ```bash
-cd pk-mcp
-npm install
+npx @pkagentic/create-project@latest my-project-name
 ```
+Project name should not have space.
 
 ### 2. Add to Claude Desktop (or other MCP Client)
 
