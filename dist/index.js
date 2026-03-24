@@ -32,7 +32,7 @@ class PKAgentMcpServer {
         this.utility = new UtilityApi();
         this.web = new WebCrawlerApi();
         this.image = new ImageGenerationApi(GEMINI_API_KEY, GEMINI_MODEL);
-        this.tailwind = new TailwindApi();
+        this.tailwind = new TailwindApi(API_BASE_URL, API_KEY, API_EMAIL);
         this.setupTools();
         // Error handling
         this.server.server.onerror = (error) => console.error("[MCP Error]", error);
@@ -545,6 +545,14 @@ class PKAgentMcpServer {
                 content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
             };
         });
+        this.server.registerTool("update_agent_guide", {
+            description: "Refresh all agent guides from the server. Fetches the main guide and writes it to AGENTS.md in the project root. For each sub-guide already cached in .pk-agentic/agent-guide/, fetches the latest version from the server and replaces it. Run this at the start of a session or after a plugin update to ensure guides are up to date.",
+        }, async () => {
+            const result = await this.api.updateAllGuides();
+            return {
+                content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+            };
+        });
         this.server.registerTool("get_tailwind_config", {
             description: "Get the Tailwind CSS configuration (@theme CSS block) from Settings > Layout. The prefix is always 'pkt-'. Returns the default kit config if none has been saved.",
         }, async () => {
@@ -565,7 +573,7 @@ class PKAgentMcpServer {
             };
         });
         this.server.registerTool("tailwind_optimize", {
-            description: "Optimize Tailwind CSS for production using PostCSS and Tailwind v4. Scans all HTML/PHP files in the workspace and uses the provided Tailwind configuration to generate a minified CSS file at workspace/optimize/optimized-tailwind.css.",
+            description: "Optimize Tailwind CSS for production using PostCSS and Tailwind v4. Scans all HTML/PHP files in the workspace and generates a minified CSS file at workspace/optimize/optimized-tailwind.css. The file is automatically uploaded to the server via the agent API — no separate upload step needed.",
             inputSchema: {
                 tailwind_config: z.string().describe("The Tailwind @theme { ... } CSS block."),
             },

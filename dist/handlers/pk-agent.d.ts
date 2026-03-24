@@ -132,6 +132,22 @@ export declare class PKAgentApi {
         file_written: string;
         absolute_path: string;
     }>;
+    updateAllGuides(): Promise<{
+        success: boolean;
+        version: string;
+        main_guide: {
+            file: string;
+            status: string;
+        };
+        sub_guides: {
+            guide: string;
+            file: string;
+            status: "new" | "updated";
+        }[];
+        new_count: number;
+        updated_count: number;
+        message: string;
+    }>;
     getRoles(): Promise<any>;
     getTailwindConfig(): Promise<any>;
     updateTailwindConfig(args: any): Promise<any>;

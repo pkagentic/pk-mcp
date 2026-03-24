@@ -399,6 +399,54 @@ export class PKAgentApi {
             absolute_path: destFile,
         };
     }
+    async updateAllGuides() {
+        const projectRoot = process.cwd();
+        const guideDir = path.resolve(projectRoot, ".pk-agentic/agent-guide");
+        const results = [];
+        // 1. Fetch main guide → AGENTS.md in project root
+        const mainResponse = await this.axiosInstance.get("guide", { params: { guide: "main" } });
+        const mainContent = mainResponse.data?.data?.data ?? "";
+        const version = mainResponse.data?.data?.version ?? "";
+        const mainPath = path.resolve(projectRoot, "AGENTS.md");
+        const mainExisted = fs.existsSync(mainPath);
+        fs.writeFileSync(mainPath, mainContent, "utf8");
+        // 2. Collect sub-guide slugs from existing local files
+        const slugs = [];
+        if (fs.existsSync(guideDir)) {
+            for (const entry of fs.readdirSync(guideDir)) {
+                if (entry.endsWith(".md")) {
+                    slugs.push(entry.slice(0, -3));
+                }
+            }
+        }
+        else {
+            fs.mkdirSync(guideDir, { recursive: true });
+        }
+        // 3. Fetch and overwrite each existing sub-guide
+        for (const slug of slugs) {
+            const response = await this.axiosInstance.get("guide", { params: { guide: slug } });
+            const content = response.data?.data?.data ?? "";
+            const filePath = path.join(guideDir, `${slug}.md`);
+            const existed = fs.existsSync(filePath);
+            fs.writeFileSync(filePath, content, "utf8");
+            results.push({
+                guide: slug,
+                file: `.pk-agentic/agent-guide/${slug}.md`,
+                status: existed ? "updated" : "new",
+            });
+        }
+        const newCount = results.filter(r => r.status === "new").length;
+        const updatedCount = results.filter(r => r.status === "updated").length;
+        return {
+            success: true,
+            version,
+            main_guide: { file: "AGENTS.md", status: mainExisted ? "updated" : "new" },
+            sub_guides: results,
+            new_count: newCount,
+            updated_count: updatedCount + (mainExisted ? 1 : 0),
+            message: `Agent guides refreshed (plugin v${version}). Main guide → AGENTS.md. Sub-guides: ${newCount} new, ${updatedCount} updated.`,
+        };
+    }
     async getRoles() {
         const response = await this.axiosInstance.get("roles");
         return response.data;
