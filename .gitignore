@@ -1,0 +1,7 @@
+.idea
+.DS_Store
+.claude
+.gemini
+.kilocode
+node_modules
+dist/*.map
