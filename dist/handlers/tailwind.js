@@ -4,7 +4,8 @@ import postcss from "postcss";
 import tailwindcss from "@tailwindcss/postcss";
 import cssnano from "cssnano";
 import { glob } from "glob";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
+import { createRequire } from "module";
 import axios from "axios";
 // Resolve the directory of this compiled file
 const __filename = fileURLToPath(import.meta.url);
@@ -32,9 +33,20 @@ export class TailwindApi {
             fs.mkdirSync(outputDir, { recursive: true });
         }
         const outputPath = path.join(outputDir, "optimized-tailwind.css");
-        // 2. Resolve absolute path to tailwindcss index.css in MCP node_modules
+        // 2. Resolve absolute path to tailwindcss index.css using Node module resolution.
+        // Using createRequire from the project root handles npm hoisting — tailwindcss may
+        // live in the project root's node_modules rather than this package's node_modules.
         const mcpRoot = path.resolve(__dirname, "..", "..");
-        const tailwindIndexCss = path.join(mcpRoot, "node_modules", "tailwindcss", "index.css").replace(/\\/g, "/");
+        const requireFromProject = createRequire(pathToFileURL(path.join(projectRoot, "package.json")).href);
+        const requireFromMcp = createRequire(pathToFileURL(path.join(mcpRoot, "package.json")).href);
+        let tailwindPkgDir;
+        try {
+            tailwindPkgDir = path.dirname(requireFromProject.resolve("tailwindcss/package.json"));
+        }
+        catch {
+            tailwindPkgDir = path.dirname(requireFromMcp.resolve("tailwindcss/package.json"));
+        }
+        const tailwindIndexCssPath = path.join(tailwindPkgDir, "index.css").replace(/\\/g, "/");
         // 3. Discover all files manually for scanning
         const workspaceFiles = await glob([
             path.join(workspaceDir, "**/*.php").replace(/\\/g, "/"),
@@ -45,7 +57,7 @@ export class TailwindApi {
             .join("\n");
         // 4. Write tailwind.css (Input)
         const cssContent = `
-@import "${tailwindIndexCss}" prefix(pkt);
+@import "${tailwindIndexCssPath}" prefix(pkt);
 
 ${tailwind_config}
 
