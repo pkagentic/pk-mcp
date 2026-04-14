@@ -4,4 +4,4 @@
 .gemini
 .kilocode
 node_modules
-dist/*.map
+dist/**/*.map
