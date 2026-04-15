@@ -356,12 +356,12 @@ export interface ScheduleBlogPostArgs {
 }
 export interface AddPostTaxonomyArgs {
     post_id: number;
-    taxonomy: "category" | "post_tag";
+    taxonomy: string;
     terms: (string | number)[];
 }
 export interface RemovePostTaxonomyArgs {
     post_id: number;
-    taxonomy: "category" | "post_tag";
+    taxonomy: string;
     terms: (string | number)[];
 }
 export interface SetFeatureImageArgs {
@@ -381,4 +381,23 @@ export interface SearchBlogPostsArgs {
     page?: number;
     per_page?: number;
     search_content?: boolean;
+}
+export interface ListTaxonomyArgs {
+    taxonomy: string;
+    page?: number;
+    per_page?: number;
+    hide_empty?: boolean;
+}
+export interface SearchTaxonomyArgs {
+    taxonomy: string;
+    search: string;
+    page?: number;
+    per_page?: number;
+}
+export interface CreateTaxonomyArgs {
+    taxonomy: string;
+    name: string;
+    slug?: string;
+    description?: string;
+    parent?: number;
 }

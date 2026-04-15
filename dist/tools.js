@@ -566,13 +566,13 @@ export const TOOLS = [
     },
     {
         name: "get_agent_guide",
-        description: "Retrieve a detailed sub-guide for a specific topic and write it to agent-guide/{topic}.md in the project directory. Available guides: workflow, templates, conditions, scripts, preview, errors, media, permissions, navigation, tailwind-config, image-generation, php-location, image-optimize, global-library, tailwind-optimize.",
+        description: "Retrieve a detailed sub-guide for a specific topic and write it to agent-guide/{topic}.md in the project directory. Available guides: workflow, templates, conditions, scripts, preview, errors, media, permissions, navigation, tailwind-config, image-generation, php-location, image-optimize, global-library, tailwind-optimize, custom-css-framework, woocommerce, addons/blog-post.",
         inputSchema: {
             type: "object",
             properties: {
                 guide: {
                     type: "string",
-                    enum: ["workflow", "templates", "conditions", "scripts", "preview", "errors", "media", "permissions", "navigation", "tailwind-config", "image-generation", "php-location", "image-optimize", "global-library", "tailwind-optimize"],
+                    enum: ["workflow", "templates", "conditions", "scripts", "preview", "errors", "media", "permissions", "navigation", "tailwind-config", "image-generation", "php-location", "image-optimize", "global-library", "tailwind-optimize", "custom-css-framework", "woocommerce", "addons/blog-post"],
                     description: "The topic of the guide to retrieve."
                 }
             },

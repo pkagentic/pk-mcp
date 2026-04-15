@@ -1,4 +1,4 @@
-import { SyncArgs, GetFileArgs, GetFilesBatchArgs, SaveItemArgs, PublishItemArgs, CreateItemArgs, ToggleItemArgs, UpdateConditionsArgs, UpdateMetadataArgs, DeleteItemArgs, GetRevisionsArgs, RestoreRevisionArgs, SearchContentsArgs, MarkContentEditArgs, SearchMediaArgs, UploadMediaArgs, GetImageSrcsetArgs, ListLibrariesArgs, CreateLibraryArgs, UpdateLibraryArgs, DeleteLibraryArgs, SearchLibrariesArgs, GetLibraryArgs, CdnDownloadLibraryArgs, SaveLibraryFilesArgs, RestoreLibraryBackupArgs, UpdateLibraryConditionsArgs, ToggleLibraryArgs, ToggleLibraryLockArgs, CreateBlogPostArgs, GetBlogPostArgs, SaveBlogPostArgs, PublishBlogPostArgs, DraftBlogPostArgs, ScheduleBlogPostArgs, AddPostTaxonomyArgs, RemovePostTaxonomyArgs, SetFeatureImageArgs, UpdatePostExcerptArgs, ListBlogPostsArgs, SearchBlogPostsArgs } from "../types.js";
+import { SyncArgs, GetFileArgs, GetFilesBatchArgs, SaveItemArgs, PublishItemArgs, CreateItemArgs, ToggleItemArgs, UpdateConditionsArgs, UpdateMetadataArgs, DeleteItemArgs, GetRevisionsArgs, RestoreRevisionArgs, SearchContentsArgs, MarkContentEditArgs, SearchMediaArgs, UploadMediaArgs, GetImageSrcsetArgs, ListLibrariesArgs, CreateLibraryArgs, UpdateLibraryArgs, DeleteLibraryArgs, SearchLibrariesArgs, GetLibraryArgs, CdnDownloadLibraryArgs, SaveLibraryFilesArgs, RestoreLibraryBackupArgs, UpdateLibraryConditionsArgs, ToggleLibraryArgs, ToggleLibraryLockArgs, CreateBlogPostArgs, GetBlogPostArgs, SaveBlogPostArgs, PublishBlogPostArgs, DraftBlogPostArgs, ScheduleBlogPostArgs, AddPostTaxonomyArgs, RemovePostTaxonomyArgs, SetFeatureImageArgs, UpdatePostExcerptArgs, ListBlogPostsArgs, SearchBlogPostsArgs, ListTaxonomyArgs, SearchTaxonomyArgs, CreateTaxonomyArgs } from "../types.js";
 export declare class PKAgentApi {
     private axiosInstance;
     constructor(baseURL: string, key: string, email: string);
@@ -188,4 +188,7 @@ export declare class PKAgentApi {
     updatePostExcerpt(args: UpdatePostExcerptArgs): Promise<any>;
     listBlogPosts(args: ListBlogPostsArgs): Promise<any>;
     searchBlogPosts(args: SearchBlogPostsArgs): Promise<any>;
+    listTaxonomy(args: ListTaxonomyArgs): Promise<any>;
+    searchTaxonomy(args: SearchTaxonomyArgs): Promise<any>;
+    createTaxonomy(args: CreateTaxonomyArgs): Promise<any>;
 }

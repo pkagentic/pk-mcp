@@ -535,9 +535,9 @@ class PKAgentMcpServer {
             };
         });
         this.server.registerTool("get_agent_guide", {
-            description: "Retrieve a detailed sub-guide for a specific topic and write it to agent-guide/{topic}.md in the project directory. After calling this tool, read the returned file path to access the full guide content. Available guides: workflow, templates, conditions, scripts, preview, errors, media, permissions, navigation, tailwind-config, image-generation, php-location, image-optimize, global-library, tailwind-optimize.",
+            description: "Retrieve a detailed sub-guide for a specific topic and write it to agent-guide/{topic}.md in the project directory. After calling this tool, read the returned file path to access the full guide content. Available guides: workflow, templates, conditions, scripts, preview, errors, media, permissions, navigation, tailwind-config, image-generation, php-location, image-optimize, global-library, tailwind-optimize, custom-css-framework, woocommerce, addons/blog-post.",
             inputSchema: {
-                guide: z.enum(["workflow", "templates", "conditions", "scripts", "preview", "errors", "media", "permissions", "navigation", "tailwind-config", "image-generation", "php-location", "image-optimize", "global-library", "tailwind-optimize"]),
+                guide: z.enum(["workflow", "templates", "conditions", "scripts", "preview", "errors", "media", "permissions", "navigation", "tailwind-config", "image-generation", "php-location", "image-optimize", "global-library", "tailwind-optimize", "custom-css-framework", "woocommerce", "addons/blog-post"]),
             },
         }, async (args) => {
             const result = await this.api.getAgentGuide(args.guide);
@@ -808,21 +808,21 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("add_post_taxonomy", {
-            description: "Add categories or tags to a WordPress blog post. New terms are created automatically if they don't exist. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Add taxonomy terms (categories, tags, or any custom taxonomy) to a WordPress blog post. Always call search_taxonomy first to confirm the term exists before calling this. Requires Blog Post addon to be enabled in Settings > Addons.",
             inputSchema: {
                 post_id: z.number().describe("WordPress post ID."),
-                taxonomy: z.enum(["category", "post_tag"]).describe("Taxonomy to add terms to: 'category' or 'post_tag'."),
-                terms: z.array(z.union([z.string(), z.number()])).describe("Array of term names (strings) or term IDs (numbers) to add."),
+                taxonomy: z.string().describe("Taxonomy slug to add terms to (e.g. 'category', 'post_tag', or any custom taxonomy registered for posts)."),
+                terms: z.array(z.union([z.string(), z.number()])).describe("Array of term names (strings) or term IDs (numbers) to add. New terms are created automatically if a name is passed and not found."),
             },
         }, async (args) => {
             const result = await this.api.addPostTaxonomy(args);
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("remove_post_taxonomy", {
-            description: "Remove categories or tags from a WordPress blog post. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Remove taxonomy terms (categories, tags, or any custom taxonomy) from a WordPress blog post. Requires Blog Post addon to be enabled in Settings > Addons.",
             inputSchema: {
                 post_id: z.number().describe("WordPress post ID."),
-                taxonomy: z.enum(["category", "post_tag"]).describe("Taxonomy to remove terms from: 'category' or 'post_tag'."),
+                taxonomy: z.string().describe("Taxonomy slug to remove terms from (e.g. 'category', 'post_tag', or any custom taxonomy registered for posts)."),
                 terms: z.array(z.union([z.string(), z.number()])).describe("Array of term names (strings) or term IDs (numbers) to remove."),
             },
         }, async (args) => {
@@ -869,6 +869,43 @@ class PKAgentMcpServer {
             },
         }, async (args) => {
             const result = await this.api.searchBlogPosts(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("list_taxonomy", {
+            description: "List terms for a given WordPress taxonomy (e.g. category, post_tag, or any custom taxonomy). Returns term IDs, names, slugs, and post counts. Requires Blog Post addon to be enabled in Settings > Addons.",
+            inputSchema: {
+                taxonomy: z.string().describe("Taxonomy slug to list terms for (e.g. 'category', 'post_tag', or any registered custom taxonomy)."),
+                page: z.number().optional().describe("Page number (1-based, default: 1)."),
+                per_page: z.number().optional().describe("Terms per page (1-100, default: 50)."),
+                hide_empty: z.boolean().optional().describe("When true, only return terms that have at least one post. Default: false."),
+            },
+        }, async (args) => {
+            const result = await this.api.listTaxonomy(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("search_taxonomy", {
+            description: "Search for terms within a WordPress taxonomy by name. Always call this before create_taxonomy or add_post_taxonomy to check whether the term already exists. Requires Blog Post addon to be enabled in Settings > Addons.",
+            inputSchema: {
+                taxonomy: z.string().describe("Taxonomy slug to search in (e.g. 'category', 'post_tag', or any registered custom taxonomy)."),
+                search: z.string().describe("Search string to match against term names (required)."),
+                page: z.number().optional().describe("Page number (1-based, default: 1)."),
+                per_page: z.number().optional().describe("Results per page (1-100, default: 20)."),
+            },
+        }, async (args) => {
+            const result = await this.api.searchTaxonomy(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("create_taxonomy", {
+            description: "Create a new term in a WordPress taxonomy (e.g. a new category or tag). Always call search_taxonomy first to verify the term does not already exist. If the term exists, use the existing term ID instead of creating a duplicate. Returns 409 with the existing term if a duplicate is detected. Requires Blog Post addon to be enabled in Settings > Addons.",
+            inputSchema: {
+                taxonomy: z.string().describe("Taxonomy slug to create the term in (e.g. 'category', 'post_tag', or any registered custom taxonomy)."),
+                name: z.string().describe("Display name for the new term (required)."),
+                slug: z.string().optional().describe("URL slug for the term. Auto-generated from name if omitted."),
+                description: z.string().optional().describe("Optional description for the term."),
+                parent: z.number().optional().describe("Parent term ID for hierarchical taxonomies (e.g. category). Use 0 or omit for a top-level term."),
+            },
+        }, async (args) => {
+            const result = await this.api.createTaxonomy(args);
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
     }

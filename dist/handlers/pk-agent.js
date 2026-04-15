@@ -388,11 +388,8 @@ export class PKAgentApi {
         const content = result?.data?.data ?? "";
         const version = result?.data?.version ?? "";
         // Write to .pk-agentic/agent-guide/{guide}.md
-        const destDir = path.resolve(".pk-agentic/agent-guide");
-        if (!fs.existsSync(destDir)) {
-            fs.mkdirSync(destDir, { recursive: true });
-        }
-        const destFile = path.join(destDir, `${guide}.md`);
+        const destFile = path.resolve(".pk-agentic/agent-guide", `${guide}.md`);
+        fs.mkdirSync(path.dirname(destFile), { recursive: true });
         fs.writeFileSync(destFile, content, "utf8");
         const relativePath = `.pk-agentic/agent-guide/${guide}.md`;
         return {
@@ -573,6 +570,7 @@ export class PKAgentApi {
             fs.writeFileSync(htmlPath, result.data.content ?? "", "utf-8");
             result.data.html_path = htmlPath;
         }
+        delete result.data.content;
         return result;
     }
     async saveBlogPost(args) {
@@ -638,6 +636,32 @@ export class PKAgentApi {
         if (search_content !== undefined)
             params.search_content = search_content ? 1 : 0;
         const response = await this.axiosInstance.get("blog-posts/search", { params });
+        return response.data;
+    }
+    async listTaxonomy(args) {
+        const { taxonomy, page, per_page, hide_empty } = args;
+        const params = { taxonomy };
+        if (page !== undefined)
+            params.page = page;
+        if (per_page !== undefined)
+            params.per_page = per_page;
+        if (hide_empty !== undefined)
+            params.hide_empty = hide_empty ? 1 : 0;
+        const response = await this.axiosInstance.get("blog-posts/taxonomy/terms", { params });
+        return response.data;
+    }
+    async searchTaxonomy(args) {
+        const { taxonomy, search, page, per_page } = args;
+        const params = { taxonomy, search };
+        if (page !== undefined)
+            params.page = page;
+        if (per_page !== undefined)
+            params.per_page = per_page;
+        const response = await this.axiosInstance.get("blog-posts/taxonomy/terms/search", { params });
+        return response.data;
+    }
+    async createTaxonomy(args) {
+        const response = await this.axiosInstance.post("blog-posts/taxonomy/terms", args);
         return response.data;
     }
 }
