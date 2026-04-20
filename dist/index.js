@@ -537,7 +537,7 @@ class PKAgentMcpServer {
         this.server.registerTool("get_agent_guide", {
             description: "Retrieve a detailed sub-guide for a specific topic and write it to agent-guide/{topic}.md in the project directory. After calling this tool, read the returned file path to access the full guide content. Available guides: workflow, templates, conditions, scripts, preview, errors, media, permissions, navigation, tailwind-config, image-generation, php-location, image-optimize, global-library, tailwind-optimize, custom-css-framework, woocommerce, addons/blog-post.",
             inputSchema: {
-                guide: z.enum(["workflow", "templates", "conditions", "scripts", "preview", "errors", "media", "permissions", "navigation", "tailwind-config", "image-generation", "php-location", "image-optimize", "global-library", "tailwind-optimize", "custom-css-framework", "woocommerce", "addons/blog-post"]),
+                guide: z.enum(["workflow", "templates", "conditions", "scripts", "preview", "errors", "media", "video", "permissions", "navigation", "tailwind-config", "image-generation", "php-location", "image-optimize", "global-library", "tailwind-optimize", "custom-css-framework", "woocommerce", "addons/blog-post"]),
             },
         }, async (args) => {
             const result = await this.api.getAgentGuide(args.guide);
