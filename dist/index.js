@@ -535,9 +535,9 @@ class PKAgentMcpServer {
             };
         });
         this.server.registerTool("get_agent_guide", {
-            description: "Retrieve a detailed sub-guide for a specific topic and write it to agent-guide/{topic}.md in the project directory. After calling this tool, read the returned file path to access the full guide content. Available guides: workflow, templates, conditions, scripts, preview, errors, media, permissions, navigation, tailwind-config, image-generation, php-location, image-optimize, global-library, tailwind-optimize, custom-css-framework, woocommerce, addons/blog-post.",
+            description: "Retrieve a detailed sub-guide for a specific topic and write it to agent-guide/{topic}.md in the project directory. After calling this tool, read the returned file path to access the full guide content. Available guides: workflow, templates, conditions, scripts, preview, errors, media, permissions, navigation, tailwind-config, image-generation, php-location, image-optimize, global-library, tailwind-optimize, custom-css-framework, woocommerce, addons/blog-post, addons/seo.",
             inputSchema: {
-                guide: z.enum(["workflow", "templates", "conditions", "scripts", "preview", "errors", "media", "video", "permissions", "navigation", "tailwind-config", "image-generation", "php-location", "image-optimize", "global-library", "tailwind-optimize", "custom-css-framework", "woocommerce", "addons/blog-post"]),
+                guide: z.enum(["workflow", "templates", "conditions", "scripts", "preview", "errors", "media", "video", "permissions", "navigation", "tailwind-config", "image-generation", "php-location", "image-optimize", "global-library", "tailwind-optimize", "custom-css-framework", "woocommerce", "addons/blog-post", "addons/seo"]),
             },
         }, async (args) => {
             const result = await this.api.getAgentGuide(args.guide);
@@ -742,10 +742,10 @@ class PKAgentMcpServer {
             });
         }
         // ── Blog Post Addon ────────────────────────────────────────────────────
-        // Requires Blog Post addon to be enabled in Settings > Addons.
+        // Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.
         // If addon is disabled, these tools return 403 addon_disabled error.
         this.server.registerTool("create_blog_post", {
-            description: "Create a new WordPress blog post as draft. Requires Blog Post addon to be enabled in Settings > Addons. Content is read from an HTML file — write standard HTML to the file first (no class/id/style attributes, headings start at <h2>).",
+            description: "Create a new WordPress blog post as draft. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons. Content is read from an HTML file — write standard HTML to the file first (no class/id/style attributes, headings start at <h2>).",
             inputSchema: {
                 title: z.string().describe("Post title (required)."),
                 slug: z.string().optional().describe("URL slug. Auto-generated from title if omitted."),
@@ -757,7 +757,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("get_blog_post", {
-            description: "Get WordPress blog post details including content, taxonomy, featured image, permalink, and preview URL. Optionally saves the post HTML content to a local file. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Get WordPress blog post details including content, taxonomy, featured image, permalink, and preview URL. Optionally saves the post HTML content to a local file. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 post_id: z.number().describe("WordPress post ID."),
                 output_dir: z.string().optional().describe("Local directory to write the post HTML file to (e.g. workspace/contents/post/). When provided, saves {slug}.html in this directory and returns html_path in the response."),
@@ -767,7 +767,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("save_blog_post", {
-            description: "Update a WordPress blog post title, slug, content, and/or excerpt. Only send fields you want to change. Content is read from an HTML file. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Update a WordPress blog post title, slug, content, and/or excerpt. Only send fields you want to change. Content is read from an HTML file. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 post_id: z.number().describe("WordPress post ID."),
                 title: z.string().optional().describe("New post title."),
@@ -780,7 +780,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("publish_blog_post", {
-            description: "Publish a WordPress blog post (change status to publish). Always confirm with the user before calling this. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Publish a WordPress blog post (change status to publish). Always confirm with the user before calling this. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 post_id: z.number().describe("WordPress post ID."),
             },
@@ -789,7 +789,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("draft_blog_post", {
-            description: "Change a WordPress blog post status back to draft. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Change a WordPress blog post status back to draft. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 post_id: z.number().describe("WordPress post ID."),
             },
@@ -798,7 +798,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("schedule_blog_post", {
-            description: "Schedule a WordPress blog post to publish at a future date. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Schedule a WordPress blog post to publish at a future date. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 post_id: z.number().describe("WordPress post ID."),
                 schedule_date: z.string().describe("Future publish datetime in Y-m-d H:i:s format (e.g. '2025-12-31 08:00:00'). Must be a future UTC timestamp."),
@@ -808,7 +808,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("add_post_taxonomy", {
-            description: "Add taxonomy terms (categories, tags, or any custom taxonomy) to a WordPress blog post. Always call search_taxonomy first to confirm the term exists before calling this. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Add taxonomy terms (categories, tags, or any custom taxonomy) to a WordPress blog post. Always call search_taxonomy first to confirm the term exists before calling this. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 post_id: z.number().describe("WordPress post ID."),
                 taxonomy: z.string().describe("Taxonomy slug to add terms to (e.g. 'category', 'post_tag', or any custom taxonomy registered for posts)."),
@@ -819,7 +819,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("remove_post_taxonomy", {
-            description: "Remove taxonomy terms (categories, tags, or any custom taxonomy) from a WordPress blog post. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Remove taxonomy terms (categories, tags, or any custom taxonomy) from a WordPress blog post. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 post_id: z.number().describe("WordPress post ID."),
                 taxonomy: z.string().describe("Taxonomy slug to remove terms from (e.g. 'category', 'post_tag', or any custom taxonomy registered for posts)."),
@@ -830,7 +830,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("set_feature_image", {
-            description: "Set the featured image for a WordPress blog post using an existing media attachment ID. Use upload_media first if the image hasn't been uploaded yet. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Set the featured image for a WordPress blog post using an existing media attachment ID. Use upload_media first if the image hasn't been uploaded yet. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 post_id: z.number().describe("WordPress post ID."),
                 attachment_id: z.number().describe("WordPress media attachment ID. Must be a valid image."),
@@ -840,7 +840,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("update_post_excerpt", {
-            description: "Update the excerpt of a WordPress blog post. The excerpt is a short plain-text summary shown in blog archives and search results. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Update the excerpt of a WordPress blog post. The excerpt is a short plain-text summary shown in blog archives and search results. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 post_id: z.number().describe("WordPress post ID."),
                 excerpt: z.string().describe("New excerpt text (plain text, no HTML)."),
@@ -850,7 +850,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("list_blog_posts", {
-            description: "List WordPress blog posts with pagination. Per-page is capped at batch_file_limit from site-info. Iterate using page parameter to retrieve all posts. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "List WordPress blog posts with pagination. Per-page is capped at batch_file_limit from site-info. Iterate using page parameter to retrieve all posts. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 page: z.number().optional().describe("Page number (1-based, default: 1)."),
                 per_page: z.number().optional().describe("Posts per page. Defaults to and capped at batch_file_limit from site-info."),
@@ -860,7 +860,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("search_blog_posts", {
-            description: "Search WordPress blog posts by title/slug or full content. Returns paginated results. Per-page is capped at batch_file_limit from site-info. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Search WordPress blog posts by title/slug or full content. Returns paginated results. Per-page is capped at batch_file_limit from site-info. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 search: z.string().describe("Search term (required)."),
                 page: z.number().optional().describe("Page number (1-based, default: 1)."),
@@ -872,7 +872,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("list_taxonomy", {
-            description: "List terms for a given WordPress taxonomy (e.g. category, post_tag, or any custom taxonomy). Returns term IDs, names, slugs, and post counts. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "List terms for a given WordPress taxonomy (e.g. category, post_tag, or any custom taxonomy). Returns term IDs, names, slugs, and post counts. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 taxonomy: z.string().describe("Taxonomy slug to list terms for (e.g. 'category', 'post_tag', or any registered custom taxonomy)."),
                 page: z.number().optional().describe("Page number (1-based, default: 1)."),
@@ -884,7 +884,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("search_taxonomy", {
-            description: "Search for terms within a WordPress taxonomy by name. Always call this before create_taxonomy or add_post_taxonomy to check whether the term already exists. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Search for terms within a WordPress taxonomy by name. Always call this before create_taxonomy or add_post_taxonomy to check whether the term already exists. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 taxonomy: z.string().describe("Taxonomy slug to search in (e.g. 'category', 'post_tag', or any registered custom taxonomy)."),
                 search: z.string().describe("Search string to match against term names (required)."),
@@ -896,7 +896,7 @@ class PKAgentMcpServer {
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
         this.server.registerTool("create_taxonomy", {
-            description: "Create a new term in a WordPress taxonomy (e.g. a new category or tag). Always call search_taxonomy first to verify the term does not already exist. If the term exists, use the existing term ID instead of creating a duplicate. Returns 409 with the existing term if a duplicate is detected. Requires Blog Post addon to be enabled in Settings > Addons.",
+            description: "Create a new term in a WordPress taxonomy (e.g. a new category or tag). Always call search_taxonomy first to verify the term does not already exist. If the term exists, use the existing term ID instead of creating a duplicate. Returns 409 with the existing term if a duplicate is detected. Requires Blog Post addon to be enabled in PK Agentic > Settings > Addons.",
             inputSchema: {
                 taxonomy: z.string().describe("Taxonomy slug to create the term in (e.g. 'category', 'post_tag', or any registered custom taxonomy)."),
                 name: z.string().describe("Display name for the new term (required)."),
@@ -906,6 +906,31 @@ class PKAgentMcpServer {
             },
         }, async (args) => {
             const result = await this.api.createTaxonomy(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        // ── SEO Addon ──────────────────────────────────────────────────────────
+        // Requires SEO Addons to be enabled in PK Agentic > Settings > Addons, AND at least one
+        // SEO provider (SEOPress / Slim SEO / Yoast / Rank Math) toggled on at
+        // PK Agentic > Settings > Addons > SEO Addons (gear icon). When no providers are on,
+        // update_seo_data returns 409 no_providers_enabled.
+        this.server.registerTool("update_seo_data", {
+            description: "Write SEO title AND meta description to a WordPress post. Fans out to every SEO plugin the user has toggled on in PK Agentic > Settings > Addons > SEO Addons (gear icon) — supported: SEOPress, Slim SEO, Yoast, Rank Math, All in One SEO, The SEO Framework, Squirrly SEO. Use the WordPress post ID, NOT a pk-agentic data ID. Both title and description are REQUIRED on every call — to update only one of them, first call get_seo_data and pass the other field back unchanged. Empty string is treated as an intentional clear. Requires SEO Addons to be enabled in PK Agentic > Settings > Addons.",
+            inputSchema: {
+                post_id: z.number().describe("WordPress post ID (not a pk-agentic data ID)."),
+                title: z.string().describe("SEO title (required). Empty string clears the field. To preserve an existing title while changing description, fetch it via get_seo_data first."),
+                description: z.string().describe("SEO meta description (required). Empty string clears the field. To preserve an existing description while changing title, fetch it via get_seo_data first."),
+            },
+        }, async (args) => {
+            const result = await this.api.updateSeoData(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("get_seo_data", {
+            description: "Read the current SEO title and meta description for a WordPress post from every enabled SEO plugin. Returns one entry per provider (yoast, rankmath, seopress, slim_seo, aioseo, the_seo_framework, squirrly) the user has toggled on. Use the WordPress post ID, NOT a pk-agentic data ID. Requires SEO Addons to be enabled in PK Agentic > Settings > Addons.",
+            inputSchema: {
+                post_id: z.number().describe("WordPress post ID (not a pk-agentic data ID)."),
+            },
+        }, async (args) => {
+            const result = await this.api.getSeoData(args);
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
     }

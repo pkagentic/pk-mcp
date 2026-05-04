@@ -1,4 +1,4 @@
-import { SyncArgs, GetFileArgs, GetFilesBatchArgs, SaveItemArgs, PublishItemArgs, CreateItemArgs, ToggleItemArgs, UpdateConditionsArgs, UpdateMetadataArgs, DeleteItemArgs, GetRevisionsArgs, RestoreRevisionArgs, SearchContentsArgs, MarkContentEditArgs, SearchMediaArgs, UploadMediaArgs, GetImageSrcsetArgs, ListLibrariesArgs, CreateLibraryArgs, UpdateLibraryArgs, DeleteLibraryArgs, SearchLibrariesArgs, GetLibraryArgs, CdnDownloadLibraryArgs, SaveLibraryFilesArgs, RestoreLibraryBackupArgs, UpdateLibraryConditionsArgs, ToggleLibraryArgs, ToggleLibraryLockArgs, CreateBlogPostArgs, GetBlogPostArgs, SaveBlogPostArgs, PublishBlogPostArgs, DraftBlogPostArgs, ScheduleBlogPostArgs, AddPostTaxonomyArgs, RemovePostTaxonomyArgs, SetFeatureImageArgs, UpdatePostExcerptArgs, ListBlogPostsArgs, SearchBlogPostsArgs, ListTaxonomyArgs, SearchTaxonomyArgs, CreateTaxonomyArgs } from "../types.js";
+import { SyncArgs, GetFileArgs, GetFilesBatchArgs, SaveItemArgs, PublishItemArgs, CreateItemArgs, ToggleItemArgs, UpdateConditionsArgs, UpdateMetadataArgs, DeleteItemArgs, GetRevisionsArgs, RestoreRevisionArgs, SearchContentsArgs, MarkContentEditArgs, SearchMediaArgs, UploadMediaArgs, GetImageSrcsetArgs, ListLibrariesArgs, CreateLibraryArgs, UpdateLibraryArgs, DeleteLibraryArgs, SearchLibrariesArgs, GetLibraryArgs, CdnDownloadLibraryArgs, SaveLibraryFilesArgs, RestoreLibraryBackupArgs, UpdateLibraryConditionsArgs, ToggleLibraryArgs, ToggleLibraryLockArgs, CreateBlogPostArgs, GetBlogPostArgs, SaveBlogPostArgs, PublishBlogPostArgs, DraftBlogPostArgs, ScheduleBlogPostArgs, AddPostTaxonomyArgs, RemovePostTaxonomyArgs, SetFeatureImageArgs, UpdatePostExcerptArgs, ListBlogPostsArgs, SearchBlogPostsArgs, ListTaxonomyArgs, SearchTaxonomyArgs, CreateTaxonomyArgs, UpdateSeoDataArgs, GetSeoDataArgs } from "../types.js";
 export declare class PKAgentApi {
     private axiosInstance;
     constructor(baseURL: string, key: string, email: string);
@@ -19,6 +19,25 @@ export declare class PKAgentApi {
      */
     private writeItemFiles;
     private readFileContent;
+    /**
+     * Precondition for any addon-scoped tool.
+     *
+     * Reads `.pk-agentic/site-info.json` (the locally cached site metadata
+     * written by `get_site_info`) and confirms that the named addon appears in
+     * `data.enabled_addons`. Throws an Error with an agent-readable message
+     * when:
+     *   - the cache file is missing (agent must call `get_site_info` first);
+     *   - the cache file is unreadable / not valid JSON;
+     *   - the addon slug is not in `enabled_addons`.
+     *
+     * The thrown messages are deliberately phrased so the agent can relay them
+     * to the user — the user is the one who needs to enable the addon in
+     * WordPress (PK Agentic > Settings > Addons).
+     *
+     * @param slug         Addon slug as the WP plugin reports it (e.g. 'seo', 'blog_post').
+     * @param displayName  Human-readable label used in the error message.
+     */
+    protected requireAddon(slug: string, displayName: string): void;
     getSiteInfo(): Promise<{
         success: boolean;
         message: string;
@@ -191,4 +210,6 @@ export declare class PKAgentApi {
     listTaxonomy(args: ListTaxonomyArgs): Promise<any>;
     searchTaxonomy(args: SearchTaxonomyArgs): Promise<any>;
     createTaxonomy(args: CreateTaxonomyArgs): Promise<any>;
+    updateSeoData(args: UpdateSeoDataArgs): Promise<any>;
+    getSeoData(args: GetSeoDataArgs): Promise<any>;
 }

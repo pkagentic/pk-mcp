@@ -401,3 +401,11 @@ export interface CreateTaxonomyArgs {
     description?: string;
     parent?: number;
 }
+export interface UpdateSeoDataArgs {
+    post_id: number;
+    title: string;
+    description: string;
+}
+export interface GetSeoDataArgs {
+    post_id: number;
+}

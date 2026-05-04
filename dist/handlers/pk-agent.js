@@ -106,6 +106,44 @@ export class PKAgentApi {
             throw new Error(`Failed to read file at ${filePath}: ${error.message}`);
         }
     }
+    /**
+     * Precondition for any addon-scoped tool.
+     *
+     * Reads `.pk-agentic/site-info.json` (the locally cached site metadata
+     * written by `get_site_info`) and confirms that the named addon appears in
+     * `data.enabled_addons`. Throws an Error with an agent-readable message
+     * when:
+     *   - the cache file is missing (agent must call `get_site_info` first);
+     *   - the cache file is unreadable / not valid JSON;
+     *   - the addon slug is not in `enabled_addons`.
+     *
+     * The thrown messages are deliberately phrased so the agent can relay them
+     * to the user — the user is the one who needs to enable the addon in
+     * WordPress (PK Agentic > Settings > Addons).
+     *
+     * @param slug         Addon slug as the WP plugin reports it (e.g. 'seo', 'blog_post').
+     * @param displayName  Human-readable label used in the error message.
+     */
+    requireAddon(slug, displayName) {
+        const filePath = ".pk-agentic/site-info.json";
+        if (!fs.existsSync(filePath)) {
+            throw new Error(`Cannot use the ${displayName} addon: site metadata cache is missing. Call get_site_info first to refresh ${filePath}, then retry.`);
+        }
+        let parsed;
+        try {
+            parsed = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+        }
+        catch (err) {
+            throw new Error(`Cannot read ${filePath}: ${err.message}. Call get_site_info to regenerate it, then retry.`);
+        }
+        const enabled = Array.isArray(parsed?.data?.enabled_addons)
+            ? parsed.data.enabled_addons
+            : [];
+        const isEnabled = enabled.some((a) => a && a.slug === slug);
+        if (!isEnabled) {
+            throw new Error(`The ${displayName} addon is not enabled on this WordPress site. Ask the user to enable "${displayName}" in WordPress admin under PK Agentic > Settings > Addons, then call get_site_info to refresh the local cache before retrying. (addon slug: ${slug})`);
+        }
+    }
     // ── API methods ───────────────────────────────────────────────────────────
     async getSiteInfo() {
         const response = await this.axiosInstance.get("site-info");
@@ -547,7 +585,11 @@ export class PKAgentApi {
         return response.data;
     }
     // ── Blog Post Addon ──────────────────────────────────────────────────────
+    // Every method below calls requireAddon('blog_post', 'Blog Post') first to
+    // verify the addon is enabled in the locally cached site-info.json before
+    // making any network call. See requireAddon() for failure modes.
     async createBlogPost(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { title, slug, html_path, excerpt } = args;
         const data = { title, slug, excerpt };
         if (html_path)
@@ -556,6 +598,7 @@ export class PKAgentApi {
         return response.data;
     }
     async getBlogPost(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { post_id, output_dir } = args;
         const response = await this.axiosInstance.get(`blog-posts/${post_id}`);
         const result = response.data;
@@ -574,6 +617,7 @@ export class PKAgentApi {
         return result;
     }
     async saveBlogPost(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { post_id, html_path, ...rest } = args;
         const data = { ...rest };
         if (html_path)
@@ -582,41 +626,49 @@ export class PKAgentApi {
         return response.data;
     }
     async publishBlogPost(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { post_id } = args;
         const response = await this.axiosInstance.post(`blog-posts/${post_id}/publish`);
         return response.data;
     }
     async draftBlogPost(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { post_id } = args;
         const response = await this.axiosInstance.post(`blog-posts/${post_id}/draft`);
         return response.data;
     }
     async scheduleBlogPost(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { post_id, schedule_date } = args;
         const response = await this.axiosInstance.post(`blog-posts/${post_id}/schedule`, { schedule_date });
         return response.data;
     }
     async addPostTaxonomy(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { post_id, taxonomy, terms } = args;
         const response = await this.axiosInstance.post(`blog-posts/${post_id}/taxonomy/add`, { taxonomy, terms });
         return response.data;
     }
     async removePostTaxonomy(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { post_id, taxonomy, terms } = args;
         const response = await this.axiosInstance.post(`blog-posts/${post_id}/taxonomy/remove`, { taxonomy, terms });
         return response.data;
     }
     async setFeatureImage(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { post_id, attachment_id } = args;
         const response = await this.axiosInstance.post(`blog-posts/${post_id}/feature-image`, { attachment_id });
         return response.data;
     }
     async updatePostExcerpt(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { post_id, excerpt } = args;
         const response = await this.axiosInstance.post(`blog-posts/${post_id}/excerpt`, { excerpt });
         return response.data;
     }
     async listBlogPosts(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { page, per_page } = args;
         const params = {};
         if (page !== undefined)
@@ -627,6 +679,7 @@ export class PKAgentApi {
         return response.data;
     }
     async searchBlogPosts(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { search, page, per_page, search_content } = args;
         const params = { search };
         if (page !== undefined)
@@ -639,6 +692,7 @@ export class PKAgentApi {
         return response.data;
     }
     async listTaxonomy(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { taxonomy, page, per_page, hide_empty } = args;
         const params = { taxonomy };
         if (page !== undefined)
@@ -651,6 +705,7 @@ export class PKAgentApi {
         return response.data;
     }
     async searchTaxonomy(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const { taxonomy, search, page, per_page } = args;
         const params = { taxonomy, search };
         if (page !== undefined)
@@ -661,7 +716,21 @@ export class PKAgentApi {
         return response.data;
     }
     async createTaxonomy(args) {
+        this.requireAddon("blog_post", "Blog Post");
         const response = await this.axiosInstance.post("blog-posts/taxonomy/terms", args);
+        return response.data;
+    }
+    // ── SEO Addon ────────────────────────────────────────────────────────────
+    async updateSeoData(args) {
+        this.requireAddon("seo", "SEO Addons");
+        const { post_id, title, description } = args;
+        const response = await this.axiosInstance.post("seo/update", { post_id, title, description });
+        return response.data;
+    }
+    async getSeoData(args) {
+        this.requireAddon("seo", "SEO Addons");
+        const { post_id } = args;
+        const response = await this.axiosInstance.get("seo/data", { params: { post_id } });
         return response.data;
     }
 }
