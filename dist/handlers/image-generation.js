@@ -5,7 +5,7 @@ export class ImageGenerationApi {
     client;
     modelId;
     constructor(apiKey, modelId) {
-        this.modelId = modelId || "gemini-3-pro-image-preview";
+        this.modelId = modelId || "gemini-3.1-flash-image-preview";
         if (apiKey) {
             this.client = new GoogleGenAI({ apiKey, apiVersion: "v1beta" });
         }
@@ -14,7 +14,7 @@ export class ImageGenerationApi {
         if (!this.client) {
             throw new Error("GEMINI_API_KEY is not set. Please set it in your MCP configuration (e.g., in claude_desktop_config.json or .env file) and restart the server.");
         }
-        const { prompt_path, image_name, page_name, aspect_ratio = "1:1" } = args;
+        const { prompt_path, image_name, page_name, aspect_ratio = "1:1", image_size } = args;
         // 1. Read prompt from file
         if (!fs.existsSync(prompt_path)) {
             throw new Error(`Prompt file not found at ${prompt_path}. Please create it first.`);
@@ -27,8 +27,11 @@ export class ImageGenerationApi {
                 model: this.modelId,
                 contents: prompt,
                 config: {
-                    imageConfig: { aspectRatio: aspect_ratio },
-                    responseModalities: ["IMAGE"]
+                    responseModalities: ["IMAGE"],
+                    imageConfig: {
+                        aspectRatio: aspect_ratio,
+                        ...(image_size && { imageSize: image_size }),
+                    },
                 }
             });
             if (!response.candidates || response.candidates.length === 0) {

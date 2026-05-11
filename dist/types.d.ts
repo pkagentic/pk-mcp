@@ -261,6 +261,7 @@ export interface GenerateImageArgs {
     image_name: string;
     page_name: string;
     aspect_ratio?: "1:1" | "9:16" | "16:9" | "3:2" | "4:3";
+    image_size?: "256" | "512" | "1024" | "2K" | "3K" | "4K";
 }
 export type AgentGuideTopic = "workflow" | "templates" | "conditions" | "scripts" | "preview" | "errors" | "media" | "permissions" | "navigation" | "tailwind-config" | "image-generation" | "image-optimize" | "global-library" | "tailwind-optimize";
 export interface TailwindOptimizeArgs {

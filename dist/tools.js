@@ -635,6 +635,11 @@ export const TOOLS = [
                     enum: ["1:1", "9:16", "16:9", "3:2", "4:3"],
                     default: "1:1",
                     description: "Desired aspect ratio for the generated image."
+                },
+                image_size: {
+                    type: "string",
+                    enum: ["256", "512", "1024", "2K", "3K", "4K"],
+                    description: "Desired image size/resolution for the generated image."
                 }
             },
             required: ["prompt_path", "image_name", "page_name"]

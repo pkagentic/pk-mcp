@@ -733,6 +733,7 @@ class PKAgentMcpServer {
                     image_name: z.string().describe("Base name for the generated image file (e.g., 'hero-banner')."),
                     page_name: z.string().describe("Name of the page this image is for (used for metadata)."),
                     aspect_ratio: z.enum(["1:1", "9:16", "16:9", "3:2", "4:3"]).optional().default("1:1"),
+                    image_size: z.enum(["256", "512", "1024", "2K", "3K", "4K"]).optional(),
                 },
             }, async (args) => {
                 const result = await this.image.generateImage(args);
