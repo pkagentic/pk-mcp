@@ -1,4 +1,4 @@
-import { SyncArgs, GetFileArgs, GetFilesBatchArgs, SaveItemArgs, PublishItemArgs, CreateItemArgs, ToggleItemArgs, UpdateConditionsArgs, UpdateMetadataArgs, DeleteItemArgs, GetRevisionsArgs, RestoreRevisionArgs, SearchContentsArgs, MarkContentEditArgs, SearchMediaArgs, UploadMediaArgs, GetImageSrcsetArgs, ListLibrariesArgs, CreateLibraryArgs, UpdateLibraryArgs, DeleteLibraryArgs, SearchLibrariesArgs, GetLibraryArgs, CdnDownloadLibraryArgs, SaveLibraryFilesArgs, RestoreLibraryBackupArgs, UpdateLibraryConditionsArgs, ToggleLibraryArgs, ToggleLibraryLockArgs, CreateBlogPostArgs, GetBlogPostArgs, SaveBlogPostArgs, PublishBlogPostArgs, DraftBlogPostArgs, ScheduleBlogPostArgs, AddPostTaxonomyArgs, RemovePostTaxonomyArgs, SetFeatureImageArgs, UpdatePostExcerptArgs, ListBlogPostsArgs, SearchBlogPostsArgs, ListTaxonomyArgs, SearchTaxonomyArgs, CreateTaxonomyArgs, UpdateSeoDataArgs, GetSeoDataArgs } from "../types.js";
+import { SyncArgs, GetFileArgs, GetFilesBatchArgs, SaveItemArgs, PublishItemArgs, CreateItemArgs, ToggleItemArgs, UpdateConditionsArgs, UpdateMetadataArgs, DeleteItemArgs, GetRevisionsArgs, RestoreRevisionArgs, SearchContentsArgs, MarkContentEditArgs, SearchMediaArgs, UploadMediaArgs, GetImageSrcsetArgs, ListLibrariesArgs, CreateLibraryArgs, UpdateLibraryArgs, DeleteLibraryArgs, SearchLibrariesArgs, GetLibraryArgs, CdnDownloadLibraryArgs, SaveLibraryFilesArgs, RestoreLibraryBackupArgs, UpdateLibraryConditionsArgs, ToggleLibraryArgs, ToggleLibraryLockArgs, CreateBlogPostArgs, GetBlogPostArgs, SaveBlogPostArgs, PublishBlogPostArgs, DraftBlogPostArgs, ScheduleBlogPostArgs, AddPostTaxonomyArgs, RemovePostTaxonomyArgs, SetFeatureImageArgs, UpdatePostExcerptArgs, ListBlogPostsArgs, SearchBlogPostsArgs, ListTaxonomyArgs, SearchTaxonomyArgs, CreateTaxonomyArgs, UpdateSeoDataArgs, GetSeoDataArgs, GetNavMenuArgs, CreateNavMenuArgs, UpdateNavMenuArgs, DeleteNavMenuArgs, AddMenuItemArgs, UpdateMenuItemArgs, DeleteMenuItemArgs, AssignMenuLocationArgs, UnassignMenuLocationArgs } from "../types.js";
 export declare class PKAgentApi {
     private axiosInstance;
     constructor(baseURL: string, key: string, email: string);
@@ -212,4 +212,15 @@ export declare class PKAgentApi {
     createTaxonomy(args: CreateTaxonomyArgs): Promise<any>;
     updateSeoData(args: UpdateSeoDataArgs): Promise<any>;
     getSeoData(args: GetSeoDataArgs): Promise<any>;
+    listNavMenus(): Promise<any>;
+    getNavMenu(args: GetNavMenuArgs): Promise<any>;
+    listMenuLocations(): Promise<any>;
+    createNavMenu(args: CreateNavMenuArgs): Promise<any>;
+    updateNavMenu(args: UpdateNavMenuArgs): Promise<any>;
+    deleteNavMenu(args: DeleteNavMenuArgs): Promise<any>;
+    addMenuItem(args: AddMenuItemArgs): Promise<any>;
+    updateMenuItem(args: UpdateMenuItemArgs): Promise<any>;
+    deleteMenuItem(args: DeleteMenuItemArgs): Promise<any>;
+    assignMenuLocation(args: AssignMenuLocationArgs): Promise<any>;
+    unassignMenuLocation(args: UnassignMenuLocationArgs): Promise<any>;
 }

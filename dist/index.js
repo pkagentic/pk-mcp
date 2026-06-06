@@ -26,7 +26,7 @@ class PKAgentMcpServer {
     constructor() {
         this.server = new McpServer({
             name: "pk-agent-mcp",
-            version: "1.4.0",
+            version: "1.8.4",
         });
         this.api = new PKAgentApi(API_BASE_URL, API_KEY, API_EMAIL);
         this.utility = new UtilityApi();
@@ -535,9 +535,9 @@ class PKAgentMcpServer {
             };
         });
         this.server.registerTool("get_agent_guide", {
-            description: "Retrieve a detailed sub-guide for a specific topic and write it to agent-guide/{topic}.md in the project directory. After calling this tool, read the returned file path to access the full guide content. Available guides: workflow, templates, conditions, scripts, preview, errors, media, permissions, navigation, tailwind-config, image-generation, php-location, image-optimize, global-library, tailwind-optimize, custom-css-framework, woocommerce, addons/blog-post, addons/seo.",
+            description: "Retrieve a detailed sub-guide for a specific topic and write it to agent-guide/{topic}.md in the project directory. After calling this tool, read the returned file path to access the full guide content. Available guides: workflow, templates, conditions, scripts, preview, errors, media, permissions, navigation, navigation-management, tailwind-config, image-generation, php-location, image-optimize, global-library, tailwind-optimize, custom-css-framework, woocommerce, addons/blog-post, addons/seo.",
             inputSchema: {
-                guide: z.enum(["workflow", "templates", "conditions", "scripts", "preview", "errors", "media", "video", "permissions", "navigation", "tailwind-config", "image-generation", "php-location", "image-optimize", "global-library", "tailwind-optimize", "custom-css-framework", "woocommerce", "addons/blog-post", "addons/seo"]),
+                guide: z.enum(["workflow", "templates", "conditions", "scripts", "preview", "errors", "media", "video", "permissions", "navigation", "navigation-management", "tailwind-config", "image-generation", "php-location", "image-optimize", "global-library", "tailwind-optimize", "custom-css-framework", "woocommerce", "addons/blog-post", "addons/seo"]),
             },
         }, async (args) => {
             const result = await this.api.getAgentGuide(args.guide);
@@ -932,6 +932,129 @@ class PKAgentMcpServer {
             },
         }, async (args) => {
             const result = await this.api.getSeoData(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        // ── Nav Menus ────────────────────────────────────────────────────────────
+        this.server.registerTool("list_nav_menus", {
+            description: "List all WordPress navigation menus. Returns id, name, slug, description, and item count for each menu. Call this before creating a new menu to avoid duplicates. Use get_agent_guide(guide='navigation-management') for the full workflow guide.",
+        }, async () => {
+            const result = await this.api.listNavMenus();
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("get_nav_menu", {
+            description: "Get a single WordPress navigation menu with all its items. Returns the menu metadata and a full list of items including their id, title, url, type, object, parent_id, position, and target.",
+            inputSchema: {
+                id: z.number().describe("Menu ID."),
+            },
+        }, async (args) => {
+            const result = await this.api.getNavMenu(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("list_menu_locations", {
+            description: "List all registered theme menu locations and their current menu assignments. Returns location slug, label, assigned_menu_id, and assigned_menu_name. Call this before assigning a menu to a location.",
+        }, async () => {
+            const result = await this.api.listMenuLocations();
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("create_nav_menu", {
+            description: "Create a new WordPress navigation menu. Requires nav_menus permission on the API key. Always call list_nav_menus first to avoid creating duplicates.",
+            inputSchema: {
+                name: z.string().describe("Menu name (required)."),
+                description: z.string().optional().describe("Internal description for the menu."),
+            },
+        }, async (args) => {
+            const result = await this.api.createNavMenu(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("update_nav_menu", {
+            description: "Update a navigation menu's name or description. Requires nav_menus permission on the API key. Omit fields to leave them unchanged.",
+            inputSchema: {
+                id: z.number().describe("Menu ID."),
+                name: z.string().optional().describe("New menu name."),
+                description: z.string().optional().describe("New internal description."),
+            },
+        }, async (args) => {
+            const result = await this.api.updateNavMenu(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("delete_nav_menu", {
+            description: "Delete a navigation menu and all its items permanently. Requires nav_menus permission on the API key. Confirm with the user before calling this.",
+            inputSchema: {
+                id: z.number().describe("Menu ID to delete."),
+            },
+        }, async (args) => {
+            const result = await this.api.deleteNavMenu(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("add_menu_item", {
+            description: "Add an item to a navigation menu. Requires nav_menus permission on the API key. For custom links set type='custom' and provide url. For posts/pages set type='post_type', object to the post type slug, and object_id to the post ID. For taxonomy archives set type='taxonomy', object to the taxonomy slug, and object_id to the term ID. Use parent_id=0 for top-level items; set parent_id to another item's id to nest it.",
+            inputSchema: {
+                id: z.number().describe("Menu ID to add the item to."),
+                title: z.string().describe("Item label (required)."),
+                url: z.string().optional().describe("URL for custom links."),
+                type: z.enum(["custom", "post_type", "taxonomy"]).optional().describe("Item type. Default: 'custom'."),
+                object: z.string().optional().describe("Post type slug or taxonomy slug for linked items."),
+                object_id: z.number().optional().describe("Post ID or term ID for linked items."),
+                parent_id: z.number().optional().describe("Parent item ID for nesting. 0 = top-level."),
+                position: z.number().optional().describe("Menu order position (1-based, lower = first)."),
+                target: z.enum(["_blank", ""]).optional().describe("Link target. Use '_blank' to open in a new tab."),
+                classes: z.string().optional().describe("CSS classes (space-separated)."),
+                xfn: z.string().optional().describe("XFN relationship value."),
+                attr_title: z.string().optional().describe("Title attribute for the link."),
+            },
+        }, async (args) => {
+            const result = await this.api.addMenuItem(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("update_menu_item", {
+            description: "Update a navigation menu item. Requires nav_menus permission on the API key. Only provided fields are changed — omit fields to keep their current values.",
+            inputSchema: {
+                id: z.number().describe("Menu ID that owns the item."),
+                item_id: z.number().describe("Menu item ID to update."),
+                title: z.string().optional().describe("Item label."),
+                url: z.string().optional().describe("URL for custom links."),
+                type: z.enum(["custom", "post_type", "taxonomy"]).optional().describe("Item type."),
+                object: z.string().optional().describe("Post type slug or taxonomy slug."),
+                object_id: z.number().optional().describe("Post ID or term ID."),
+                parent_id: z.number().optional().describe("Parent item ID. 0 = top-level."),
+                position: z.number().optional().describe("Menu order position (1-based)."),
+                target: z.enum(["_blank", ""]).optional().describe("Link target."),
+                classes: z.string().optional().describe("CSS classes (space-separated)."),
+                xfn: z.string().optional().describe("XFN relationship value."),
+                attr_title: z.string().optional().describe("Title attribute for the link."),
+            },
+        }, async (args) => {
+            const result = await this.api.updateMenuItem(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("delete_menu_item", {
+            description: "Remove an item from a navigation menu. Requires nav_menus permission on the API key.",
+            inputSchema: {
+                id: z.number().describe("Menu ID that owns the item."),
+                item_id: z.number().describe("Menu item ID to remove."),
+            },
+        }, async (args) => {
+            const result = await this.api.deleteMenuItem(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("assign_menu_location", {
+            description: "Assign a navigation menu to a registered theme location. Requires nav_menus permission on the API key. Call list_menu_locations first to confirm the location slug exists and to check if it is already assigned to another menu — inform the user before overwriting an existing assignment.",
+            inputSchema: {
+                id: z.number().describe("Menu ID to assign."),
+                location: z.string().describe("Theme location slug (e.g. 'primary', 'footer')."),
+            },
+        }, async (args) => {
+            const result = await this.api.assignMenuLocation(args);
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        });
+        this.server.registerTool("unassign_menu_location", {
+            description: "Remove a navigation menu from a theme location. Requires nav_menus permission on the API key. Only clears the assignment if the specified menu is currently assigned to that location — safe to call even if the location is assigned to a different menu.",
+            inputSchema: {
+                id: z.number().describe("Menu ID to unassign."),
+                location: z.string().describe("Theme location slug to unassign the menu from."),
+            },
+        }, async (args) => {
+            const result = await this.api.unassignMenuLocation(args);
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         });
     }

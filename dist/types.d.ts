@@ -263,7 +263,7 @@ export interface GenerateImageArgs {
     aspect_ratio?: "1:1" | "9:16" | "16:9" | "3:2" | "4:3";
     image_size?: "256" | "512" | "1024" | "2K" | "3K" | "4K";
 }
-export type AgentGuideTopic = "workflow" | "templates" | "conditions" | "scripts" | "preview" | "errors" | "media" | "permissions" | "navigation" | "tailwind-config" | "image-generation" | "image-optimize" | "global-library" | "tailwind-optimize";
+export type AgentGuideTopic = "workflow" | "templates" | "conditions" | "scripts" | "preview" | "errors" | "media" | "permissions" | "navigation" | "navigation-management" | "tailwind-config" | "image-generation" | "image-optimize" | "global-library" | "tailwind-optimize";
 export interface TailwindOptimizeArgs {
     tailwind_config: string;
 }
@@ -409,4 +409,60 @@ export interface UpdateSeoDataArgs {
 }
 export interface GetSeoDataArgs {
     post_id: number;
+}
+export interface GetNavMenuArgs {
+    id: number;
+}
+export interface CreateNavMenuArgs {
+    name: string;
+    description?: string;
+}
+export interface UpdateNavMenuArgs {
+    id: number;
+    name?: string;
+    description?: string;
+}
+export interface DeleteNavMenuArgs {
+    id: number;
+}
+export interface AddMenuItemArgs {
+    id: number;
+    title: string;
+    url?: string;
+    type?: "custom" | "post_type" | "taxonomy";
+    object?: string;
+    object_id?: number;
+    parent_id?: number;
+    position?: number;
+    target?: string;
+    classes?: string;
+    xfn?: string;
+    attr_title?: string;
+}
+export interface UpdateMenuItemArgs {
+    id: number;
+    item_id: number;
+    title?: string;
+    url?: string;
+    type?: "custom" | "post_type" | "taxonomy";
+    object?: string;
+    object_id?: number;
+    parent_id?: number;
+    position?: number;
+    target?: string;
+    classes?: string;
+    xfn?: string;
+    attr_title?: string;
+}
+export interface DeleteMenuItemArgs {
+    id: number;
+    item_id: number;
+}
+export interface AssignMenuLocationArgs {
+    id: number;
+    location: string;
+}
+export interface UnassignMenuLocationArgs {
+    id: number;
+    location: string;
 }

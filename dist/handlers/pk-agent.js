@@ -733,5 +733,58 @@ export class PKAgentApi {
         const response = await this.axiosInstance.get("seo/data", { params: { post_id } });
         return response.data;
     }
+    // ── Nav Menus ────────────────────────────────────────────────────────────
+    async listNavMenus() {
+        const response = await this.axiosInstance.get("nav-menus");
+        return response.data;
+    }
+    async getNavMenu(args) {
+        const response = await this.axiosInstance.get(`nav-menus/${args.id}`);
+        return response.data;
+    }
+    async listMenuLocations() {
+        const response = await this.axiosInstance.get("nav-menus/locations");
+        return response.data;
+    }
+    async createNavMenu(args) {
+        const data = { name: args.name };
+        if (args.description !== undefined)
+            data.description = args.description;
+        const response = await this.axiosInstance.post("nav-menus", data);
+        return response.data;
+    }
+    async updateNavMenu(args) {
+        const { id, ...data } = args;
+        const response = await this.axiosInstance.post(`nav-menus/${id}/update`, data);
+        return response.data;
+    }
+    async deleteNavMenu(args) {
+        const response = await this.axiosInstance.delete(`nav-menus/${args.id}`);
+        return response.data;
+    }
+    async addMenuItem(args) {
+        const { id, ...itemData } = args;
+        const response = await this.axiosInstance.post(`nav-menus/${id}/items`, itemData);
+        return response.data;
+    }
+    async updateMenuItem(args) {
+        const { id, item_id, ...itemData } = args;
+        const response = await this.axiosInstance.post(`nav-menus/${id}/items/${item_id}/update`, itemData);
+        return response.data;
+    }
+    async deleteMenuItem(args) {
+        const response = await this.axiosInstance.delete(`nav-menus/${args.id}/items/${args.item_id}`);
+        return response.data;
+    }
+    async assignMenuLocation(args) {
+        const { id, location } = args;
+        const response = await this.axiosInstance.post(`nav-menus/${id}/location`, { location });
+        return response.data;
+    }
+    async unassignMenuLocation(args) {
+        const { id, location } = args;
+        const response = await this.axiosInstance.delete(`nav-menus/${id}/location`, { data: { location } });
+        return response.data;
+    }
 }
 //# sourceMappingURL=pk-agent.js.map
