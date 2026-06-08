@@ -26,7 +26,7 @@ class PKAgentMcpServer {
     constructor() {
         this.server = new McpServer({
             name: "pk-agent-mcp",
-            version: "1.8.4",
+            version: "1.9.4",
         });
         this.api = new PKAgentApi(API_BASE_URL, API_KEY, API_EMAIL);
         this.utility = new UtilityApi();

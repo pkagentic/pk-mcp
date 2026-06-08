@@ -572,7 +572,7 @@ export const TOOLS = [
             properties: {
                 guide: {
                     type: "string",
-                    enum: ["workflow", "templates", "conditions", "scripts", "preview", "errors", "media", "permissions", "navigation", "tailwind-config", "image-generation", "php-location", "image-optimize", "global-library", "tailwind-optimize", "custom-css-framework", "woocommerce", "addons/blog-post"],
+                    enum: ["workflow", "templates", "conditions", "scripts", "preview", "errors", "media", "permissions", "navigation", "tailwind-config", "image-generation", "php-location", "image-optimize", "global-library", "tailwind-optimize", "custom-css-framework", "woocommerce", "addons/blog-post", "addons/seo"],
                     description: "The topic of the guide to retrieve."
                 }
             },
